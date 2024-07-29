@@ -13,6 +13,12 @@ logging.basicConfig(
     format='%(asctime)s %(levelname)s %(message)s'
 )
 
+def save_df(path: str, df: DataFrame, format: str):
+    if format == 'csv':
+        df.to_csv(path, encoding='utf-8')
+    elif format == 'xlsx':
+        df.to_excel(path, index=False)
+
 def _get_items(
     id: int,
     timeout: float,
@@ -35,6 +41,8 @@ def _get_items(
     page = 1
     resp = ''
     clean_list = []
+    
+    print(f"Получение {model} пользователя {id} {site}")
     
     while resp != None:
         data, resp = _get_page(id, type, page)
@@ -285,7 +293,7 @@ class User:
     
     
     
-    def save_data(self):
+    def save_data(self, format):
         
         '''
             Сохраняет все данные о пользователе в папку data/{id_пользователя}__{число}_{месяц}_{год}_{час}_{минута}
@@ -295,7 +303,7 @@ class User:
             os.mkdir('data')
             os.mkdir('data/' + str(self.id))
         
-        if not os.path.exists(str(self.id)):
+        if not os.path.exists('data/' + str(self.id)):
             os.mkdir('data/' + str(self.id))
         
         path = f'data/{self.id}/{self.id}__{datetime.now().strftime('%d_%m_%Y_%H_%M')}'
@@ -314,15 +322,15 @@ class User:
                 s = 'hentailib'
             
             frame = generate_bookmarks_DataFrame(BookmarksList(_get_items(self.id, 0, site)))
-            frame.to_excel(path + '/bookmarks/' + f'{s}.xlsx', index=False)
+            save_df(path + '/bookmarks/' + f'{s}.xlsx', frame, format=format)
         
         
         frame = generate_comments_DataFrame(CommentsList(_get_items(self.id, 0, 'c')))
-        frame.to_excel(path + f'/comments.xlsx', index=False)
+        save_df(path + f'/comments.xlsx', frame, format=format)
         
         
         frame = generate_friends_DataFrame(FriendsList(_get_items(self.id, 0, 'f')))
-        frame.to_excel(path + f'/friends.xlsx', index=False)
+        save_df(path + f'/friends.xlsx', frame, format=format)
         
         
         frame = DataFrame(
@@ -331,4 +339,6 @@ class User:
                 'Значение': [self.username, self.id, self.gender, self.about, self.last_online, self.level, self.created_date]
             }
         )
-        frame.to_excel(path + f'/profile.xlsx', index=False)
+        save_df(path + f'/profile.xlsx', frame, format=format)
+        
+        print(f'Все данные пользователя {self.id} получены и сохранены\n\n')
