@@ -15,9 +15,9 @@ logging.basicConfig(
 
 def save_df(path: str, df: DataFrame, format: str):
     if format == 'csv':
-        df.to_csv(path, encoding='utf-8')
+        df.to_csv(path + format, encoding='utf-8')
     elif format == 'xlsx':
-        df.to_excel(path, index=False)
+        df.to_excel(path + "." + format, index=False)
 
 def _get_items(
     id: int,
@@ -322,15 +322,15 @@ class User:
                 s = 'hentailib'
             
             frame = generate_bookmarks_DataFrame(BookmarksList(_get_items(self.id, 0, site)))
-            save_df(path + '/bookmarks/' + f'{s}.xlsx', frame, format=format)
+            save_df(path + '/bookmarks/' + f'{s}', frame, format=format)
         
         
         frame = generate_comments_DataFrame(CommentsList(_get_items(self.id, 0, 'c')))
-        save_df(path + f'/comments.xlsx', frame, format=format)
+        save_df(path + f'/comments', frame, format=format)
         
         
         frame = generate_friends_DataFrame(FriendsList(_get_items(self.id, 0, 'f')))
-        save_df(path + f'/friends.xlsx', frame, format=format)
+        save_df(path + f'/friends', frame, format=format)
         
         
         frame = DataFrame(
@@ -339,6 +339,6 @@ class User:
                 'Значение': [self.username, self.id, self.gender, self.about, self.last_online, self.level, self.created_date]
             }
         )
-        save_df(path + f'/profile.xlsx', frame, format=format)
+        save_df(path + f'/profile', frame, format=format)
         
         print(f'Все данные пользователя {self.id} получены и сохранены\n\n')
